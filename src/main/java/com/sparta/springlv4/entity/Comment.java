@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -19,6 +22,9 @@ public class Comment extends Timestamped{
     @Column(name = "comments", nullable = false)
     private String comments;
 
+    @Column(name = "likes", nullable = false)
+    private int likesCount=0;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -26,6 +32,9 @@ public class Comment extends Timestamped{
     @ManyToOne
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
+    private List<Like> likes = new ArrayList<>();
 
     public Comment(CommentRequestDto requestDto, User user, Board board) {
         this.comments = requestDto.getComments();
@@ -35,5 +44,13 @@ public class Comment extends Timestamped{
 
     public void update(CommentRequestDto requestDto) {
         this.comments = requestDto.getComments();
+    }
+
+    public void increseLikesCount(){
+        this.likesCount++;
+    }
+
+    public void decreseLikesCount(){
+        this.likesCount--;
     }
 }

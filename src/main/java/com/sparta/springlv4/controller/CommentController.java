@@ -38,4 +38,13 @@ public class CommentController {
     public ResponseEntity<Message> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return commentService.deleteComment(commentId, userDetails.getUser());
     }
+    @PostMapping("/comment/like/{id}")
+    public ResponseEntity<Message> likeBoard (@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.likeComment(id, userDetails.getUser());
+    }
+
+    @DeleteMapping("/comment/like/{id}")
+    public ResponseEntity<Message> deleteLikeBoard (@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.deleteLikeComment(id, userDetails.getUser());
+    }
 }

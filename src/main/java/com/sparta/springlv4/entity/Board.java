@@ -25,6 +25,8 @@ public class Board extends Timestamped{
     private String username;
     @Column(name = "contents", nullable = false)
     private String contents;
+    @Column(name = "likes", nullable = false)
+    private int likesCount=0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -33,6 +35,9 @@ public class Board extends Timestamped{
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
     @OrderBy("id desc")
     private List<Comment> commentList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
+    private List<Like> likes = new ArrayList<>();
 
     public Board(BoardRequestDto requestDto, User user){
         this.title = requestDto.getTitle();
@@ -44,5 +49,13 @@ public class Board extends Timestamped{
     public void update(BoardRequestDto requestDto){
         this.title = requestDto.getTitle();
         this.contents = requestDto.getContents();
+    }
+
+    public void increseLikesCount(){
+        this.likesCount++;
+    }
+
+    public void decreseLikesCount(){
+        this.likesCount--;
     }
 }

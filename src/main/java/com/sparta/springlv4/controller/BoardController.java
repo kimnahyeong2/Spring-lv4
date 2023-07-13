@@ -50,4 +50,14 @@ public class BoardController {
     {
         return boardService.deleteBoard(id, requestDto, userDetails.getUser());
     }
+
+    @PostMapping("/feed/like/{id}")
+    public ResponseEntity<Message> likeBoard (@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.likeBoard(id, userDetails.getUser());
+    }
+
+    @DeleteMapping("/feed/like/{id}")
+    public ResponseEntity<Message> deleteLikeBoard (@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.deleteLikeBoard(id, userDetails.getUser());
+    }
 }

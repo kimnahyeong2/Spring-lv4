@@ -2,12 +2,10 @@ package com.sparta.springlv4.service;
 
 import com.sparta.springlv4.dto.CommentRequestDto;
 import com.sparta.springlv4.dto.CommentResponseDto;
-import com.sparta.springlv4.entity.Board;
-import com.sparta.springlv4.entity.Comment;
-import com.sparta.springlv4.entity.User;
-import com.sparta.springlv4.entity.UserRoleEnum;
+import com.sparta.springlv4.entity.*;
 import com.sparta.springlv4.repository.BoardRepository;
 import com.sparta.springlv4.repository.CommentRepository;
+import com.sparta.springlv4.repository.LikeRepository;
 import com.sparta.springlv4.status.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -26,6 +25,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional
     public CommentResponseDto addComment(Long boardId, CommentRequestDto requestDto, User user) {
@@ -78,5 +78,32 @@ public class CommentService {
     private boolean confirmUser(Comment comment, User user) {
         UserRoleEnum userRoleEnum = user.getRole();
         return userRoleEnum != UserRoleEnum.USER || Objects.equals(comment.getUser().getId(), user.getId());
+    }
+    @Transactional
+    public ResponseEntity<Message> likeComment(Long id, User user) {
+        Message message = new Message();
+        Comment comment = findComment(id);
+        if(likeRepository.findByUserAndComment(user, comment).isPresent()){
+            message.setMessage("좋아요 이미 되어 있습니다");
+            return new ResponseEntity<Message>(message, HttpStatus.BAD_REQUEST);
+        }
+        Like like = likeRepository.save(new Like(user, comment));
+        comment.increseLikesCount();
+        message.setMessage("좋아요 완료");
+        return new ResponseEntity<Message>(message, HttpStatus.OK);
+    }
+    @Transactional
+    public ResponseEntity<Message> deleteLikeComment(Long id, User user) {
+        Message message = new Message();
+        Comment comment = findComment(id);
+        if(likeRepository.findByUserAndComment(user, comment).isEmpty()){
+            message.setMessage("좋아요 이미 삭제 되어 있습니다");
+            return new ResponseEntity<Message>(message, HttpStatus.BAD_REQUEST);
+        }
+        Optional<Like> like = likeRepository.findByUserAndComment(user, comment);
+        likeRepository.delete(like.get());
+        comment.decreseLikesCount();
+        message.setMessage("좋아요 취소");
+        return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
 }
