@@ -78,7 +78,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         response.setContentType("application/json");
         try {
             //ObjectMapper 를 통해서 변환한다
-            String json = new ObjectMapper().writeValueAsString(new Message(statusCode, msg));
+            String json = new ObjectMapper().writeValueAsString(new Message(msg, statusCode));
             response.getWriter().write(json);
         } catch (Exception e) {
             log.error(e.getMessage());

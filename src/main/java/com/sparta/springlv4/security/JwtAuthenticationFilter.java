@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setStatus(400);
         response.setContentType("application/json");
         try {
-            String json = new ObjectMapper().writeValueAsString(new Message(400, "회원을 찾을 수 없습니다."));
+            String json = new ObjectMapper().writeValueAsString(new Message("회원을 찾을 수 없습니다.",400));
             response.getWriter().write(json);
         } catch (Exception e) {
             log.error(e.getMessage());

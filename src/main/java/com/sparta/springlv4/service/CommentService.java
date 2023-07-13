@@ -9,11 +9,13 @@ import com.sparta.springlv4.repository.LikeRepository;
 import com.sparta.springlv4.status.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,11 +28,18 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
     private final LikeRepository likeRepository;
+    private final MessageSource messageSource;
+
 
     @Transactional
     public CommentResponseDto addComment(Long boardId, CommentRequestDto requestDto, User user) {
         Board board = boardRepository.findById(boardId).orElseThrow(
-                () -> new NullPointerException("해당 게시글이 존재하지 않습니다.")
+                () -> new NullPointerException(messageSource.getMessage(
+                        "not.exist.post",
+                        null,
+                        "해당 게시물이 존재하지 않습니다",
+                        Locale.getDefault()
+                ))
         );
         Comment comment = commentRepository.save(new Comment(requestDto, user, board));
 
@@ -38,40 +47,48 @@ public class CommentService {
     }
 
     @Transactional
-    public ResponseEntity<?> updateComment(Long commentId, CommentRequestDto requestDto, User user) {
+    public CommentResponseDto updateComment(Long commentId, CommentRequestDto requestDto, User user) {
         Comment comment = findComment(commentId);
         if(!confirmUser(comment, user)){
-            Message message = new Message();
-            message.setMessage("작성자만 수정할 수 있습니다.");
-            message.setStatusCode(400);
-            return new ResponseEntity<Message>(message, HttpStatus.BAD_REQUEST);
+            throw new IllegalArgumentException(messageSource.getMessage(
+                    "not.your.post",
+                    null,
+                    "작성자만 수정이 가능합니다",
+                    Locale.getDefault()
+            ));
         }
-
         comment.update(requestDto);
-        return ResponseEntity.ok().body(new CommentResponseDto(comment));
+        return new CommentResponseDto(comment);
     }
 
     @Transactional
     public ResponseEntity<Message> deleteComment(Long commentId, User user) {
-        Message message = new Message();
-
         Comment comment = findComment(commentId);
 
         if(!confirmUser(comment, user)){
-            message.setMessage("작성자만 삭제할 수 있습니다.");
-            message.setStatusCode(400);
-            return new ResponseEntity<Message>(message, HttpStatus.BAD_REQUEST);
+            throw new IllegalArgumentException(messageSource.getMessage(
+                    "not.your.post",
+                    null,
+                    "작성자만 삭제가 가능합니다",
+                    Locale.getDefault()
+            ));
         }
 
         commentRepository.delete(comment);
 
-        message.setMessage("삭제 완료");
+        String msg ="삭제 완료";
+        Message message = new Message(msg, HttpStatus.OK.value());
         return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
 
     private Comment findComment(Long commentId) {
         return commentRepository.findById(commentId).orElseThrow(
-                () -> new NullPointerException("해당 댓글이 존재하지 않습니다.")
+                () -> new NullPointerException(messageSource.getMessage(
+                        "not.exist.comment",
+                        null,
+                        "해당 댓글이 존재하지 않습니다",
+                        Locale.getDefault()
+                ))
         );
     }
 
@@ -81,29 +98,37 @@ public class CommentService {
     }
     @Transactional
     public ResponseEntity<Message> likeComment(Long id, User user) {
-        Message message = new Message();
         Comment comment = findComment(id);
         if(likeRepository.findByUserAndComment(user, comment).isPresent()){
-            message.setMessage("좋아요 이미 되어 있습니다");
-            return new ResponseEntity<Message>(message, HttpStatus.BAD_REQUEST);
+            throw new IllegalArgumentException(messageSource.getMessage(
+                    "already.like",
+                    null,
+                    "이미 좋아요 되어 있습니다",
+                    Locale.getDefault()
+            ));
         }
         Like like = likeRepository.save(new Like(user, comment));
         comment.increseLikesCount();
-        message.setMessage("좋아요 완료");
+        String msg ="좋아요 완료";
+        Message message = new Message(msg, HttpStatus.OK.value());
         return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
     @Transactional
     public ResponseEntity<Message> deleteLikeComment(Long id, User user) {
-        Message message = new Message();
         Comment comment = findComment(id);
         if(likeRepository.findByUserAndComment(user, comment).isEmpty()){
-            message.setMessage("좋아요 이미 삭제 되어 있습니다");
-            return new ResponseEntity<Message>(message, HttpStatus.BAD_REQUEST);
+            throw new IllegalArgumentException(messageSource.getMessage(
+                    "already.delete.like",
+                    null,
+                    "이미 좋아요 되어 있지 않습니다",
+                    Locale.getDefault()
+            ));
         }
         Optional<Like> like = likeRepository.findByUserAndComment(user, comment);
         likeRepository.delete(like.get());
         comment.decreseLikesCount();
-        message.setMessage("좋아요 취소");
+        String msg ="좋아요 취소";
+        Message message = new Message(msg, HttpStatus.OK.value());
         return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
 }

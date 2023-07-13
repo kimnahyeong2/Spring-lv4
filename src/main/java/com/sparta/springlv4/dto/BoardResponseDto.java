@@ -36,6 +36,7 @@ public class BoardResponseDto {
         private String username;
         private String contents;
         private LocalDateTime createdAt;
+        private int likeCount;
 
         private List<CommentResponseDto> commentList  = new ArrayList<>();
 
@@ -44,6 +45,8 @@ public class BoardResponseDto {
             this.username = board.getUsername();
             this.contents = board.getContents();
             this.createdAt = board.getCreatedAt();
+            this.likeCount = board.getLikesCount();
+
             for(Comment comment : board.getCommentList()) {
                 commentList.add(new CommentResponseDto(comment));
             }
