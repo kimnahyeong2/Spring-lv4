@@ -21,8 +21,6 @@ public class Board extends Timestamped{
 
     @Column(name = "title", nullable = false)
     private String title;
-    @Column(name = "username", nullable = false)
-    private String username;
     @Column(name = "contents", nullable = false)
     private String contents;
     @Column(name = "likes", nullable = false)
@@ -42,7 +40,6 @@ public class Board extends Timestamped{
     public Board(BoardRequestDto requestDto, User user){
         this.title = requestDto.getTitle();
         this.contents = requestDto.getContents();
-        this.username = user.getUsername();
         this.user = user;
     }
 
