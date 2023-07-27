@@ -15,25 +15,18 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="category")
+    private Long category;
+    @Column(name = "cateId")
+    private Long cateId;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "board_id")
-    private Board board;
-
-    @ManyToOne
-    @JoinColumn(name = "comment_id")
-    private Comment comment;
-
-    public Like(User user, Board board) {
+    public Like(User user, Long id, Long category) {
         this.user = user;
-        this.board = board;
-    }
-
-    public Like(User user, Comment comment) {
-        this.user = user;
-        this.comment = comment;
+        this.cateId = id;
+        this.category = category;
     }
 }

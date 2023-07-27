@@ -107,7 +107,7 @@ public class CommentService {
                     Locale.getDefault()
             ));
         }
-        Like like = likeRepository.save(new Like(user, comment));
+        Like like = likeRepository.save(new Like(user, id, 2L));
         comment.increseLikesCount();
         String msg ="좋아요 완료";
         Message message = new Message(msg, HttpStatus.OK.value());

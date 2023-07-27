@@ -23,7 +23,7 @@ public class BoardResponseDto {
         public BoardBasicResponseDto(Board board){
             this.id = board.getId();
             this.title = board.getTitle();
-            this.username = board.getUsername();
+            this.username = board.getUser().getUsername();
             this.contents = board.getContents();
             this.createdAt = board.getCreatedAt();
             this.modifiedAt = board.getModifiedAt();
@@ -42,7 +42,7 @@ public class BoardResponseDto {
 
         public BoardReadResponseDto(Board board){
             this.title = board.getTitle();
-            this.username = board.getUsername();
+            this.username = board.getUser().getUsername();
             this.contents = board.getContents();
             this.createdAt = board.getCreatedAt();
             this.likeCount = board.getLikesCount();

@@ -34,9 +34,6 @@ public class Board extends Timestamped{
     @OrderBy("id desc")
     private List<Comment> commentList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
-    private List<Like> likes = new ArrayList<>();
-
     public Board(BoardRequestDto requestDto, User user){
         this.title = requestDto.getTitle();
         this.contents = requestDto.getContents();

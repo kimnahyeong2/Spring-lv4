@@ -33,9 +33,6 @@ public class Comment extends Timestamped{
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
-    private List<Like> likes = new ArrayList<>();
-
     public Comment(CommentRequestDto requestDto, User user, Board board) {
         this.comments = requestDto.getComments();
         this.user = user;

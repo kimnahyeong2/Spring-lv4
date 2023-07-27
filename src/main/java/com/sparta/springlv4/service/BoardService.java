@@ -98,7 +98,7 @@ public class BoardService {
                     Locale.getDefault()
             ));
         }
-        Like like = likeRepository.save(new Like(user, board));
+        Like like = likeRepository.save(new Like(user, id, 1L));
         String msg ="좋아요 완료";
         Message message = new Message(msg, HttpStatus.OK.value());
         return new ResponseEntity<Message>(message, HttpStatus.OK);
