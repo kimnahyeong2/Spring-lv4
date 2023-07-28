@@ -81,7 +81,7 @@ public class BoardService {
             throw new IllegalArgumentException(messageSource.getMessage(
                     "not.your.post",
                     null,
-                    "작성자만 수정 및 삭제가 가능합니다",
+                    "작성자만 수정 및 삭제가 가능합니다s",
                     Locale.getDefault()
             ));
         }
