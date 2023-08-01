@@ -87,39 +87,4 @@ public class BoardService {
         }
     }
 
-    @Transactional
-    public ResponseEntity<Message> likeBoard(Long id, User user) {
-        Board board = findBoard(id);
-        if(likeRepository.findByUserAndBoard(user, board).isPresent()){
-            throw new IllegalArgumentException(messageSource.getMessage(
-                    "already.like",
-                    null,
-                    "이미 좋아요 되어 있습니다",
-                    Locale.getDefault()
-            ));
-        }
-        Like like = likeRepository.save(new Like(user, id, 1L));
-        String msg ="좋아요 완료";
-        Message message = new Message(msg, HttpStatus.OK.value());
-        return new ResponseEntity<Message>(message, HttpStatus.OK);
-    }
-
-    @Transactional
-    public ResponseEntity<Message> deleteLikeBoard(Long id, User user){
-        Board board = findBoard(id);
-        if(likeRepository.findByUserAndBoard(user, board).isEmpty()){
-            throw new IllegalArgumentException(messageSource.getMessage(
-                    "already.delete.like",
-                    null,
-                    "이미 좋아요 되어 있지 않습니다",
-                    Locale.getDefault()
-            ));
-        }
-        Optional<Like> like = likeRepository.findByUserAndBoard(user, board);
-        likeRepository.delete(like.get());
-        board.decreseLikesCount();
-        String msg ="좋아요 취소";
-        Message message = new Message(msg, HttpStatus.OK.value());
-        return new ResponseEntity<Message>(message, HttpStatus.OK);
-    }
 }

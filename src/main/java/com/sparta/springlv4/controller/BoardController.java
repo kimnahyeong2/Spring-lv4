@@ -4,6 +4,7 @@ import com.sparta.springlv4.dto.BoardRequestDto;
 import com.sparta.springlv4.dto.BoardResponseDto;
 import com.sparta.springlv4.security.UserDetailsImpl;
 import com.sparta.springlv4.service.BoardService;
+import com.sparta.springlv4.service.LikeService;
 import com.sparta.springlv4.status.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.List;
 
 public class BoardController {
     private final BoardService boardService;
+    private final LikeService likeService;
 
     @GetMapping("/feed")
     public List<BoardResponseDto.BoardReadResponseDto> getBoards(){
@@ -53,11 +55,11 @@ public class BoardController {
 
     @PostMapping("/feed/like/{id}")
     public ResponseEntity<Message> likeBoard (@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return boardService.likeBoard(id, userDetails.getUser());
+        return likeService.likeBoardOrComment(id, userDetails.getUser(), 0L);
     }
 
     @DeleteMapping("/feed/like/{id}")
     public ResponseEntity<Message> deleteLikeBoard (@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return boardService.deleteLikeBoard(id, userDetails.getUser());
+        return likeService.deleteLikeBoardOrComment(id, userDetails.getUser(), 0L);
     }
 }

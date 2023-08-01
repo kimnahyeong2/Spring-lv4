@@ -17,8 +17,8 @@ public class Like {
 
     @Column(name="category")
     private Long category;
-    @Column(name = "cateId")
-    private Long cateId;
+    @Column(name = "targetId")
+    private Long targetId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -26,7 +26,7 @@ public class Like {
 
     public Like(User user, Long id, Long category) {
         this.user = user;
-        this.cateId = id;
+        this.targetId = id;
         this.category = category;
     }
 }

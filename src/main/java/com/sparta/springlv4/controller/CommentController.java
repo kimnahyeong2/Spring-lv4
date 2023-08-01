@@ -4,6 +4,7 @@ import com.sparta.springlv4.dto.CommentRequestDto;
 import com.sparta.springlv4.dto.CommentResponseDto;
 import com.sparta.springlv4.security.UserDetailsImpl;
 import com.sparta.springlv4.service.CommentService;
+import com.sparta.springlv4.service.LikeService;
 import com.sparta.springlv4.status.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
 
     private final CommentService commentService;
+    private final LikeService likeService;
 
     @PostMapping("/comment/{boardId}")
     public CommentResponseDto addComment(@PathVariable Long boardId, @RequestBody CommentRequestDto requestDto,
@@ -40,11 +42,11 @@ public class CommentController {
     }
     @PostMapping("/comment/like/{id}")
     public ResponseEntity<Message> likeBoard (@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return commentService.likeComment(id, userDetails.getUser());
+        return likeService.likeBoardOrComment(id, userDetails.getUser(), 1L);
     }
 
     @DeleteMapping("/comment/like/{id}")
     public ResponseEntity<Message> deleteLikeBoard (@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return commentService.deleteLikeComment(id, userDetails.getUser());
+        return likeService.deleteLikeBoardOrComment(id, userDetails.getUser(), 1L);
     }
 }
