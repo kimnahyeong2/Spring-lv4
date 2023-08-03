@@ -30,7 +30,17 @@ public class LikeService {
 
     @Transactional
     public ResponseEntity<Message> likeBoardOrComment(Long id, User user, Long category) {
-        if(category == 0L){
+
+        if(likeRepository.findByUserAndCategoryAndTargetId(user, category, id).isPresent()){
+            throw new IllegalArgumentException(messageSource.getMessage(
+                    "already.like",
+                    null,
+                    "이미 좋아요 되어 있습니다",
+                    Locale.getDefault()
+            ));
+        }
+
+        if(category==0L){
             Board board = boardRepository.findById(id).orElseThrow(()->
                     new IllegalArgumentException(messageSource.getMessage(
                             "not.exist.post",
@@ -38,17 +48,7 @@ public class LikeService {
                             "해당 게시물이 존재하지 않습니다",
                             Locale.getDefault()
                     ))
-            );
-
-            if(likeRepository.findByUserAndCategoryAndTargetId(user, category, id).isPresent()){
-                throw new IllegalArgumentException(messageSource.getMessage(
-                        "already.like",
-                        null,
-                        "이미 좋아요 되어 있습니다",
-                        Locale.getDefault()
-                ));
-            }
-
+            );;
             board.increseLikesCount();
         }
         else{
@@ -59,19 +59,10 @@ public class LikeService {
                             "해당 댓글이 존재하지 않습니다",
                             Locale.getDefault()
                     ))
-            );
-
-            if(likeRepository.findByUserAndCategoryAndTargetId(user, category, id).isPresent()){
-                throw new IllegalArgumentException(messageSource.getMessage(
-                        "already.like",
-                        null,
-                        "이미 좋아요 되어 있습니다",
-                        Locale.getDefault()
-                ));
-            }
-
+            );;
             comment.increseLikesCount();
         }
+
         Like like = likeRepository.save(new Like(user, id, category));
         String msg ="좋아요 완료";
         Message message = new Message(msg, HttpStatus.OK.value());
@@ -80,6 +71,16 @@ public class LikeService {
 
     @Transactional
     public ResponseEntity<Message> deleteLikeBoardOrComment(Long id, User user, Long category) {
+
+        if(likeRepository.findByUserAndCategoryAndTargetId(user, category, id).isEmpty()){
+            throw new IllegalArgumentException(messageSource.getMessage(
+                    "already.delete.like",
+                    null,
+                    "이미 좋아요 되어 있지 않습니다",
+                    Locale.getDefault()
+            ));
+        }
+
         if(category == 0L){
             Board board = boardRepository.findById(id).orElseThrow(()->
                     new IllegalArgumentException(messageSource.getMessage(
@@ -89,15 +90,6 @@ public class LikeService {
                             Locale.getDefault()
                     ))
             );
-
-            if(likeRepository.findByUserAndCategoryAndTargetId(user, category, id).isEmpty()){
-                throw new IllegalArgumentException(messageSource.getMessage(
-                        "already.delete.like",
-                        null,
-                        "이미 좋아요 되어 있지 않습니다",
-                        Locale.getDefault()
-                ));
-            }
 
             board.decreseLikesCount();
         }
@@ -110,15 +102,6 @@ public class LikeService {
                             Locale.getDefault()
                     ))
             );
-            log.info(user + " " + category + " " + id);
-            if(likeRepository.findByUserAndCategoryAndTargetId(user, category, id).isEmpty()){
-                throw new IllegalArgumentException(messageSource.getMessage(
-                        "already.delete.like",
-                        null,
-                        "이미 좋아요 되어 있지 않습니다",
-                        Locale.getDefault()
-                ));
-            }
 
             comment.decreseLikesCount();
         }
