@@ -1,6 +1,7 @@
 package com.sparta.springlv4.aop;
 
 import com.sparta.springlv4.entity.Board;
+import com.sparta.springlv4.entity.Comment;
 import com.sparta.springlv4.entity.User;
 import com.sparta.springlv4.entity.UserRoleEnum;
 import com.sparta.springlv4.security.UserDetailsImpl;
@@ -21,14 +22,6 @@ import java.util.concurrent.RejectedExecutionException;
 public class RoleCheckAop {
 
     @Pointcut("execution(* com.sparta.springlv4.service.BoardService.updateBoard(..))")
-    private void updatePost() {
-    }
-
-    @Pointcut("execution(* com.sparta.springlv4.service.BoardService.deleteBoard(..))")
-    private void deletePost() {
-    }
-
-    @Pointcut("execution(* com.sparta.springlv4.service.BoardService.updateBoard(..))")
     private void updateBoard() {
     }
 
@@ -36,8 +29,16 @@ public class RoleCheckAop {
     private void deleteBoard() {
     }
 
+    @Pointcut("execution(* com.sparta.springlv4.service.CommentService.updateComment(..))")
+    private void updateComment() {
+    }
 
-    @Around("updatePost() || deletePost()")
+    @Pointcut("execution(* com.sparta.springlv4.service.CommentService.deleteComment(..))")
+    private void deleteComment() {
+    }
+
+
+    @Around("updateBoard() || deleteBoard()")
     public Object executePostRoleCheck(ProceedingJoinPoint joinPoint) throws Throwable {
         // 첫번째 매개변수로 게시글 받아옴
         Board board = (Board) joinPoint.getArgs()[0];
@@ -60,10 +61,10 @@ public class RoleCheckAop {
         return joinPoint.proceed();
     }
 
-    @Around("updateBoard() || deleteBoard()")
+    @Around("updateComment() || deleteComment()")
     public Object executeBoardRoleCheck(ProceedingJoinPoint joinPoint) throws Throwable {
         // 첫번째 매개변수로 게시글 받아옴
-        Board board = (Board) joinPoint.getArgs()[0];
+        Comment comment = (Comment) joinPoint.getArgs()[0];
 
         // 로그인 회원이 없는 경우, 수행시간 기록하지 않음
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -73,7 +74,7 @@ public class RoleCheckAop {
             User loginUser = userDetails.getUser();
 
             // 댓글 작성자(board.user) 와 요청자(user) 가 같은지 또는 Admin 인지 체크 (아니면 예외발생)
-            if (!(loginUser.getRole().equals(UserRoleEnum.ADMIN) || board.getUser().equals(loginUser))) {
+            if (!(loginUser.getRole().equals(UserRoleEnum.ADMIN) || comment.getUser().equals(loginUser))) {
                 log.warn("[AOP] 작성자만 댓글을 수정/삭제 할 수 있습니다.");
                 throw new RejectedExecutionException();
             }

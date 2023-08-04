@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
+import java.util.concurrent.RejectedExecutionException;
 
 @RestControllerAdvice
 @Slf4j(topic = "Global 예외처리")
@@ -92,6 +93,18 @@ public class GlobalControllerAdvice {
         return new ResponseEntity<>(
                 messageDto,
                 HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler({RejectedExecutionException.class})
+    public ResponseEntity<MessageDto> rejectedExecutionException(RejectedExecutionException ex) {
+        log.info("NullPointerException : " + ex.getMessage());
+
+        MessageDto messageDto = new MessageDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+
+        return new ResponseEntity<>(
+                messageDto,
+                HttpStatus.BAD_REQUEST
         );
     }
 
