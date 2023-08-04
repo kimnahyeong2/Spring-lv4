@@ -2,6 +2,7 @@ package com.sparta.springlv4.controller;
 
 import com.sparta.springlv4.dto.BoardRequestDto;
 import com.sparta.springlv4.dto.BoardResponseDto;
+import com.sparta.springlv4.dto.BoardSearchCond;
 import com.sparta.springlv4.entity.Board;
 import com.sparta.springlv4.error.MessageDto;
 import com.sparta.springlv4.security.UserDetailsImpl;
@@ -9,11 +10,14 @@ import com.sparta.springlv4.service.BoardService;
 import com.sparta.springlv4.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -70,5 +74,19 @@ public class BoardController {
     public ResponseEntity<MessageDto> deleteLikeBoard(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         likeService.deleteLikeBoardOrComment(id, userDetails.getUser(), 0L);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new MessageDto("게시글 좋아요 취소 성공", HttpStatus.ACCEPTED.value()));
+    }
+
+    @GetMapping("/feed/find/{search}")
+    public ResponseEntity<List<BoardSearchCond>> searchBoard(@PathVariable String search, Pageable pageable) {
+        log.info("요청..");
+        //Pageable pageable = pageDTO.toPageable();
+        Page<BoardSearchCond> searchBoardList = boardService.getSearchList(search, pageable);
+        List<BoardSearchCond> result = new ArrayList<>();
+        log.info("시작");
+        for (BoardSearchCond board : searchBoardList) {
+            result.add(board);
+        }
+        log.info("끝");
+        return ResponseEntity.ok().body(result);
     }
 }

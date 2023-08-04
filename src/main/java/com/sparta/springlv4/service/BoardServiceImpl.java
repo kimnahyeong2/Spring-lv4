@@ -2,6 +2,7 @@ package com.sparta.springlv4.service;
 
 import com.sparta.springlv4.dto.BoardRequestDto;
 import com.sparta.springlv4.dto.BoardResponseDto;
+import com.sparta.springlv4.dto.BoardSearchCond;
 import com.sparta.springlv4.entity.Board;
 import com.sparta.springlv4.entity.Comment;
 import com.sparta.springlv4.entity.User;
@@ -9,6 +10,8 @@ import com.sparta.springlv4.repository.BoardRepository;
 import com.sparta.springlv4.repository.LikeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,5 +103,18 @@ public class BoardServiceImpl implements BoardService {
         return boardRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("선택한 게시글은 존재하지 않습니다.")
         );
+    }
+
+    /**
+     * 게시글 검색
+     *
+     * @return 등록된 게시물 조회 결과
+     * @Param 검색 단어 요청 정보
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<BoardSearchCond> getSearchList(String searchWorld, Pageable pageable) {
+        var cond = BoardSearchCond.builder().title(searchWorld).build();
+        return boardRepository.search(searchWorld, pageable);
     }
 }
