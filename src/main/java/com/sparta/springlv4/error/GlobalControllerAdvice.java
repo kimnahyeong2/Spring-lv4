@@ -13,6 +13,17 @@ import java.nio.file.AccessDeniedException;
 @RestControllerAdvice
 @Slf4j(topic = "Global 예외처리")
 public class GlobalControllerAdvice {
+    // CustomException
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<MessageDto> notFoundException(NotFoundException ex) {
+        log.info("NotFoundException : " + ex.getMessage());
+        MessageDto messageDto = new MessageDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(
+                messageDto,
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
     // 400
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<MessageDto> runtimeException(RuntimeException ex) {
