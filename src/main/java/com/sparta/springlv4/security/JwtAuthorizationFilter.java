@@ -2,7 +2,7 @@ package com.sparta.springlv4.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.springlv4.jwt.JwtUtil;
-import com.sparta.springlv4.status.Message;
+import com.sparta.springlv4.error.MessageDto;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,10 +25,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final ObjectMapper objectMapper;
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -39,18 +41,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(tokenValue)) {
 
             if (!jwtUtil.validateToken(tokenValue)) {
-                jwtExceptionHandler(res, "Token Error", HttpStatus.UNAUTHORIZED.value());
+                MessageDto messageDto = new MessageDto("토큰이 유효하지 않습니다.", HttpStatus.BAD_REQUEST.value());
+                res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                res.setContentType("application/json; charset=UTF-8");
+                res.getWriter().write(objectMapper.writeValueAsString(messageDto));
+                //jwtExceptionHandler(res, "Token Error", HttpStatus.UNAUTHORIZED.value());
                 return;
             }
-
             Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
-
-            try {
-                setAuthentication(info.getSubject());
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return;
-            }
+            setAuthentication(info.getSubject());
         }
 
         filterChain.doFilter(req, res);
@@ -61,7 +60,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         Authentication authentication = createAuthentication(username);
         context.setAuthentication(authentication);
-
+        // username -> user 조회 -> userDetails 에 담고 -> authentication의 principal 에 담고
+        // -> securityContent 에 담고 -> SecurityContextHolder 에 담고
+        // -> 이제 @AuthenticationPrincipal 로 조회할 수 있음
         SecurityContextHolder.setContext(context);
     }
 
@@ -71,17 +72,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
-    //위의 if(token != null) 여기에서 Token 에 대한 오류가 발생했을 때, Exception 한 결과값을 Client 에게 넘긴다
+ /*   //위의 if(token != null) 여기에서 Token 에 대한 오류가 발생했을 때, Exception 한 결과값을 Client 에게 넘긴다
     //validateToken() 메소드를 실행해서 false 가 됐다면, jwtExceptionHandler() 메소드 실행 --> Client 로 반환
     public void jwtExceptionHandler(HttpServletResponse response, String msg, int statusCode) {
         response.setStatus(statusCode);
         response.setContentType("application/json");
         try {
             //ObjectMapper 를 통해서 변환한다
-            String json = new ObjectMapper().writeValueAsString(new Message(msg, statusCode));
+            String json = new ObjectMapper().writeValueAsString(new MessageDto(msg, statusCode));
             response.getWriter().write(json);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-    }
+    }*/
 }

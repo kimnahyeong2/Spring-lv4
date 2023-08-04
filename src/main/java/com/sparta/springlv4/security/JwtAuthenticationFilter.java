@@ -3,8 +3,8 @@ package com.sparta.springlv4.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.springlv4.dto.UserRequestDto;
 import com.sparta.springlv4.entity.UserRoleEnum;
+import com.sparta.springlv4.error.MessageDto;
 import com.sparta.springlv4.jwt.JwtUtil;
-import com.sparta.springlv4.status.Message;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setStatus(400);
         response.setContentType("application/json");
         try {
-            String json = new ObjectMapper().writeValueAsString(new Message("회원을 찾을 수 없습니다.",400));
+            String json = new ObjectMapper().writeValueAsString(new MessageDto("회원을 찾을 수 없습니다.", 400));
             response.getWriter().write(json);
         } catch (Exception e) {
             log.error(e.getMessage());
