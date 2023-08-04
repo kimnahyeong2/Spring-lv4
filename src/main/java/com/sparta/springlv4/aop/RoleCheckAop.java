@@ -21,16 +21,20 @@ import java.util.concurrent.RejectedExecutionException;
 public class RoleCheckAop {
 
     @Pointcut("execution(* com.sparta.springlv4.service.BoardService.updateBoard(..))")
-    private void updatePost() {}
+    private void updatePost() {
+    }
 
     @Pointcut("execution(* com.sparta.springlv4.service.BoardService.deleteBoard(..))")
-    private void deletePost() {}
+    private void deletePost() {
+    }
 
     @Pointcut("execution(* com.sparta.springlv4.service.BoardService.updateBoard(..))")
-    private void updateBoard() {}
+    private void updateBoard() {
+    }
 
     @Pointcut("execution(* com.sparta.springlv4.service.BoardService.deleteBoard(..))")
-    private void deleteBoard() {}
+    private void deleteBoard() {
+    }
 
 
     @Around("updatePost() || deletePost()")
@@ -42,7 +46,7 @@ public class RoleCheckAop {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal().getClass() == UserDetailsImpl.class) {
             // 로그인 회원 정보
-            UserDetailsImpl userDetails = (UserDetailsImpl)auth.getPrincipal();
+            UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
             User loginUser = userDetails.getUser();
 
             // 게시글 작성자(post.user) 와 요청자(user) 가 같은지 또는 Admin 인지 체크 (아니면 예외발생)
@@ -59,13 +63,13 @@ public class RoleCheckAop {
     @Around("updateBoard() || deleteBoard()")
     public Object executeBoardRoleCheck(ProceedingJoinPoint joinPoint) throws Throwable {
         // 첫번째 매개변수로 게시글 받아옴
-        Board board = (Board)joinPoint.getArgs()[0];
+        Board board = (Board) joinPoint.getArgs()[0];
 
         // 로그인 회원이 없는 경우, 수행시간 기록하지 않음
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal().getClass() == UserDetailsImpl.class) {
             // 로그인 회원 정보
-            UserDetailsImpl userDetails = (UserDetailsImpl)auth.getPrincipal();
+            UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
             User loginUser = userDetails.getUser();
 
             // 댓글 작성자(board.user) 와 요청자(user) 가 같은지 또는 Admin 인지 체크 (아니면 예외발생)
