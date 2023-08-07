@@ -61,7 +61,7 @@ public class BoardController {
             @PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Board board = boardService.findBoard(id);
         boardService.deleteBoard(board, userDetails.getUser());
-        return ResponseEntity.ok().body(new MessageDto("게시글 삭제 성공", HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new MessageDto("게시글 삭제 성공!!", HttpStatus.OK.value()));
     }
 
     @PostMapping("/feed/like/{id}")
